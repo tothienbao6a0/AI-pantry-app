@@ -26,9 +26,9 @@ To get started with PantryPal, follow these steps:
    cd pantrypal
 2. **Install Dependencies**
 
-'''bash
-Copy code:
-npm install
+   ```bash
+   
+   npm install
 
 3. **Set Up Firebase**
 
