@@ -1,20 +1,30 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
-import { Box, Stack, Typography, Button, Modal } from "@mui/material";
-import {firestore} from '@/firebase'
-import {collection} from 'firebase/firestore'
-import {getDocs, query} from 'firebase/firestore'
+import {
+  Box,
+  Stack,
+  Typography,
+  Button,
+  Modal,
+  TextField,
+} from "@mui/material";
+import { firestore } from "@/firebase";
+import { collection } from "firebase/firestore";
+import { getDocs, query, setDoc, doc, deleteDoc, getDoc, docSnap } from "firebase/firestore";
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "white",
-  border: '2px solid #000',
+  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
+  gap: 4,
+  display: "flex",
+  flexDirection: "column",
 };
 
 export default function Home() {
@@ -22,31 +32,72 @@ export default function Home() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const [pantry, setPantry] = useState([])
-  useEffect(() => {
-    const updatePantry = async () => {
-    const snapshot = query(collection(firestore,'pantry'))
-    const docs = await getDocs(snapshot)
-    const pantryList = []
-    docs.forEach((doc) => {
-      console.log(doc.id)
-      // Add items to the pantry here
-      pantryList.push(doc.id)
-    })
-    console.log(pantryList)
-    setPantry(pantryList)
+  const [itemName, setItemName] = useState("");
 
-  }
-  updatePantry()
+  const [pantry, setPantry] = useState([]);
+
+  const updatePantry = async () => {
+    const snapshot = query(collection(firestore, "pantry"));
+    const docs = await getDocs(snapshot);
+    const pantryList = [];
+    docs.forEach((doc) => {
+      console.log(doc.id);
+      // Add items to the pantry here
+      pantryList.push({name: doc.id,...doc.data()});
+    });
+    console.log(pantryList);
+    setPantry(pantryList);
+  };
+
+  useEffect(() => {
+    updatePantry();
   }, []);
+
+  const addItem = async (item) => {
+    if (item.trim()) {
+      const docRef = doc(collection(firestore, "pantry"), item);
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()){
+        const {count} = docSnap.data()
+        await setDoc(docRef, {count:count+1})
+  
+      }
+      else{
+        await setDoc(docRef, {count:1});
+        await updatePantry(); // Refresh the pantry items after adding a new item
+      }
+      
+    } else {
+      console.error("Item name cannot be empty");
+      
+    }
+    await updatePantry();
+  };
+
+  const removeItem = async (item) => {
+    //remove the item from the pantry
+    const docRef = doc(collection(firestore, "pantry"), item);
+
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      const {count} = docSnap.data()
+      if (count ==1){
+        await deleteDoc(docRef)
+      } else{
+        await setDoc(docRef, {count:count-1})
+      }
+      updatePantry(); //
+
+      }
+    // Refresh the pantry items after removing an item
+  };
   return (
-    <Box 
+    <Box
       width="100vw"
       height="100vw"
       display={"flex"}
       justifyContent={"center"}
       alignItems={"center"}
-      
       flexDirection={"column"}
       gap={2}
     >
@@ -60,18 +111,34 @@ export default function Home() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add Item
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+          <Stack width="100%" direction={"row"} spacing={2}>
+            <TextField
+              id="outlined-basic"
+              label="Item"
+              variant="outlined"
+              fullWidth
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
+
+            <Button
+              variant="outlined"
+              onClick={() => {
+                addItem(itemName);
+                setItemName("");
+                handleClose();
+              }}
+            >
+              Add
+            </Button>
+          </Stack>
         </Box>
       </Modal>
-      <Button 
-        variant="contained" onClick={handleOpen}
-      >
-
+      <Button variant="contained" onClick={handleOpen}>
         Add
       </Button>
-      <Box border={"1px solid black"}
+      <Box
+        border={"1px solid black"}
         width="800px"
         height="100px"
         bgcolor={"#ADD8E6"}
@@ -85,15 +152,16 @@ export default function Home() {
       </Box>
 
       <Box>
-        
         <Stack width="800px" height="500px" spacing={2} overflow={"auto"}>
-          {pantry.map((i) => (
+          {pantry.map(({name, count}) => (
+
             <Box
-              key={i}
+              key={name}
               width="100%"
               minHeight="150px"
               display="flex"
-              justifyContent={"center"}
+              justifyContent={"space-between"}
+              paddingX = {5}
               alignItems={"center"}
               border={"1px solid black"}
               bgcolor={"lightgray"}
@@ -106,17 +174,31 @@ export default function Home() {
               >
                 {
                   //Capitalize the first letter of the item
-                  i.charAt(0).toUpperCase() + i.slice(1)
+                  name.charAt(0).toUpperCase() + name.slice(1)
                 }
               </Typography>
+
+              <Typography
+                variant="h3"
+                color = "333"
+                textAlign= "center"
+                justifyContent={"center"}
+              >
+                Quantity: {count}
+              </Typography>
+
+              <Button
+                variant="contained"
+                onClick={() => {
+                  removeItem(name);
+                }}
+              >
+                Remove
+              </Button>
             </Box>
           ))}
-        
         </Stack>
-        </Box>
       </Box>
-      
-    
-    
+    </Box>
   );
 }
