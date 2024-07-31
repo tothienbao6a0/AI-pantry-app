@@ -35,16 +35,15 @@ To get started with PantryPal, follow these steps:
 Create a Firebase project and configure Firebase authentication and Firestore database.
 Add your Firebase configuration to the .env.local file. Here is an example format for .env.local:
 plaintext
+  
 
-   ```bash
-      
-   NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-
+      ```bash
+         NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
+         NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+         NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+         NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+         NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 
 4. **Run the Application**
 
@@ -59,3 +58,6 @@ We welcome contributions to PantryPal! Please refer to the CONTRIBUTING.md file 
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+
+   
